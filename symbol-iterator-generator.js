@@ -44,6 +44,39 @@ console.log(it.next())
 		console.log("for of ", v)
 	}
 
+var newArr = "This is a string but will be treated as an array and iterate over using both for of and basic iterator function";
+
+var itMe = newArr[Symbol.iterator]();
+
+for (let v in newArr ) console.log(itMe.next())
+
+//for (let v of newArr) console.log(v)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
