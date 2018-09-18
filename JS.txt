@@ -1,0 +1,16 @@
+Module Pattern
+Prototype Chain
+Object Pattern
+Object Delegation
+Class Pattern
+Closure
+Lexical Scope
+Functional Pattern
+Higher Order Function
+CallBack
+__PROTO__
+NEW
+Object.create
+Object.assign
+
+
