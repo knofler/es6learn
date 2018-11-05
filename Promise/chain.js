@@ -21,40 +21,40 @@ function main({
     console.log("now in UNIX is : ", now.getTime())
     console.log("utcDate in UNIX is : ", utcTime)
 
-    tz = tz.toUpperCase()
+    let userTZ = tz.toUpperCase()
     let TZStartTime = 0;
     start = start * 60000
     end = end * 60000
 
     return {
         timeZone: function () {
-            if (tz == "AEDT") {
-                TZStartTime = utcTime + 11 * 3600000
-                console.log("AEDT")
-            } else if (tz == "ACDT") {
-                TZStartTime = utcTime + 10.5 * 3600000
-                console.log("ACDT")
-            } else if (tz == "ACST") {
-                TZStartTime = utcTime + 9.5 * 3600000
-                console.log("ACST")
-            } else if (tz == "AWST") {
-                TZStartTime = utcTime + 8 * 3600000
-                console.log("AWST")
-            } else if (tz == "AEST") {
-                TZStartTime = utcTime + 10 * 3600000
-                console.log("AEST")
-            }
-            // tz = tz == "AEDT" ? currentTime = utcTime + 11 * 3600000 :
-            //     tz == "ACDT" ? currentTime = utcTime + 10.5 * 3600000 :
-            //     tz == "ACST" ? currentTime = utcTime + 9.5 * 3600000 :
-            //     tz == "AWST" ? currentTime = utcTime + 8 * 3600000 :
-            //     tz == "AEST" ? currentTime = utcTime + 10 * 3600000 : 8 * 3600000;
-            console.log("current time is : ", TZStartTime)
+            // if (tz == "AEDT") {
+            //     TZStartTime = utcTime + 11 * 3600000
+            //     console.log("AEDT")
+            // } else if (tz == "ACDT") {
+            //     TZStartTime = utcTime + 10.5 * 3600000
+            //     console.log("ACDT")
+            // } else if (tz == "ACST") {
+            //     TZStartTime = utcTime + 9.5 * 3600000
+            //     console.log("ACST")
+            // } else if (tz == "AWST") {
+            //     TZStartTime = utcTime + 8 * 3600000
+            //     console.log("AWST")
+            // } else if (tz == "AEST") {
+            //     TZStartTime = utcTime + 10 * 3600000
+            //     console.log("AEST")
+            // }
+            userTZ == "AEDT" ? TZStartTime = utcTime + 11 * 3600000 :
+                userTZ == "ACDT" ? TZStartTime = utcTime + 10.5 * 3600000 :
+                userTZ == "ACST" ? TZStartTime = utcTime + 9.5 * 3600000 :
+                userTZ == "AWST" ? TZStartTime = utcTime + 8 * 3600000 :
+                userTZ == "AEST" ? TZStartTime = utcTime + 10 * 3600000 : 0;
+
+            console.log("Time Zone current time is : ", TZStartTime, "and TZ is: ", tz)
 
             return {
                 controlStream: function () {
-
-                    console.log("start: ", start, "end : ", end)
+                    console.log("User Defined start: ", start, "User Defined end : ", end)
                     let dvrConstraint = 180 * 60000
                     console.log("dvrConstraint is :", dvrConstraint)
                     const dvrStart = baseStationStartTime - 180 * 60000;
@@ -71,7 +71,7 @@ function main({
 
                     let customUrl = baseUrl;
 
-                    console.log("customUrl: ", customUrl)
+                    console.log("After time control applied, customeURL is: ", customUrl)
                     return {
                         getURL: function () {
                             console.log("TZStartTime:: ", TZStartTime, "endTime:: ", baseStationStartTime);
@@ -97,11 +97,11 @@ function main({
                                     console.log("No custom start end time defined in other TZ")
                                 }
                             }
-                            console.log("customUrl is : ", customUrl)
+                            console.log("Time zone and time controlled applied, customeURL now is: ", customUrl)
                             return {
                                 stream: async function runStream() {
                                     const stream = await fetch(customUrl);
-                                    console.log("customStream: ", stream)
+                                    console.log("Stream OUTPUT::: ", stream)
                                 }
                             }
                         }
@@ -115,9 +115,9 @@ function main({
 }
 
 console.log(main({
-        tz: 'AEDT',
-        start: 81,
-        end: 21
+        tz: 'ACDT',
+        start: 0,
+        end: 0
     })
     .timeZone()
     .controlStream()
