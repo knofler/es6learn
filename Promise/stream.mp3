@@ -1,0 +1,9 @@
+#EXTM3U
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=31000,CODECS="mp4a.40.2"
+https://abcradiolivehls-lh.akamaihd.net/i/abcextra_1@327281/index_32_a-p.m3u8?sd=10&start=1541374792.486&end=1541385592.486&rebase=on
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=31000,CODECS="mp4a.40.2"
+https://abcradiolivehls-lh.akamaihd.net/i/abcextra_1@327281/index_32_a-b.m3u8?sd=10&start=1541374792.486&end=1541385592.486&rebase=on
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=46000,CODECS="mp4a.40.2"
+https://abcradiolivehls-lh.akamaihd.net/i/abcextra_1@327281/index_64_a-p.m3u8?sd=10&start=1541374792.486&end=1541385592.486&rebase=on
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=46000,CODECS="mp4a.40.2"
+https://abcradiolivehls-lh.akamaihd.net/i/abcextra_1@327281/index_64_a-b.m3u8?sd=10&start=1541374792.486&end=1541385592.486&rebase=on

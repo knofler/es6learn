@@ -1,79 +1,146 @@
 const fetch = require('node-fetch')
+const RequestStream = require('./RequestStream');
+const fs = require('fs')
 
-//var u = new Date().toUTCString();
-//console.log("Sydney time :", new Date());
+let RS = new RequestStream()
 
-function getURL(state = "nsw", baseStationTime = new Date()) {
-    const baseUrl = "https://abcradiolivehls-lh.akamaihd.net/i/abcextra_1@327281/master.m3u8";
-    let stateTimeGap = 0;
+function getURL({
+    state = "NSW",
+    baseUrl = 'https://abcradiolivehls-lh.akamaihd.net/i/abcextra_1@327281/master.m3u8',
+    baseStationStartTime = new Date().getTime()
+}) {
+    state = state.toUpperCase()
+    //Lets check the default values
+    console.log("baseStationStartTime:", baseStationStartTime);
+    console.log("baseUrl:", baseUrl)
+    console.log("state is :", state)
 
-    state == "wa" ? stateTimeGap = -3 :
-        state == "qld" ? stateTimeGap = -1 :
-        state == "nsw" ? stateTimeGap = 0 : stateTimeGap = 0
 
-    // let statetStartTimeHour = baseStationTime.getHours() + stateTimeGap
-    //  console.log("baseStationTime Hour", baseStationTime.getHours())
-    //  console.log("stateTimeGap: ", stateTimeGap)
-    //  console.log("stateStartTime Hour", statetStartTimeHour);
+    let timeGap = 0;
+    state == "WA" ? timeGap = 3 * 3600000 :
+        state == "QLD" ? timeGap = 1 * 3600000 :
+        state == "NSW" ? timeGap = 0 : timeGap = 0
 
-    let statetStartTime = baseStationTime.setHours(stateTimeGap)
-    console.log("baseStationTime", baseStationTime.setHours(0))
-    console.log("stateStartTime", statetStartTime);
+    let startTime = baseStationStartTime - timeGap
+    console.log("startTime:: ", startTime, "endTime:: ", baseStationStartTime);
 
-    let customUrl = baseUrl + "?start=" + statetStartTime
-    return customUrl
-}
-
-function controlStream(start, end, baseStationTime = new Date()) {
-    const baseUrl = "https://abcradiolivehls-lh.akamaihd.net/i/abcextra_1@327281/master.m3u8";
-    let customUrl = "";
-
-    const dvrStartMinute = baseStationTime.setMinutes(-180);
-
-    console.log("dvrConstraint Minute is :", dvrStartMinute)
-
-    console.log("start: ", start, "\n", "end: ", end)
-
-    start > 180 || start <= 0 ? 180 : 2;
-    end <= 180 || end >= start ? 0 : end;
-
-    let startMin = baseStationTime.setMinutes(-start),
-        endMin = baseStationTime.setMinutes(-end);
-    console.log("startMin: ", startMin, "\n", "endMin: ", endMin)
-    customUrl = baseUrl + "?start=" + startMin + "&end=" + endMin;
+    let customUrl = baseUrl + "?start=" + startTime / 1000 + "&end=" + baseStationStartTime / 1000
 
     return customUrl
 }
 
-function timeStream(start, end, baseStationTime = new Date()) {
+function controlStream(start, end) {
+    const baseUrl = "https://abcradiolivehls-lh.akamaihd.net/i/abcextra_1@327281/master.m3u8";
 
-    const dvrStartMinute = baseStationTime.setMinutes(-180);
-    console.log("dvrConstraint Minute is :", dvrStartMinute)
-    console.log("start: ", start, "\n", "end: ", end)
-    start > 180 || start <= 0 ? 180 : 2;
-    end <= 180 || end >= start ? 0 : end;
+    let baseStationTime = new Date().getTime();
+    console.log("baseStationTime is :", baseStationTime)
+    start = start * 60000
+    end = end * 60000
+    console.log("start: ", start, "end : ", end)
+    let dvrConstraint = 180 * 60000
+    console.log("dvrConstraint is :", dvrConstraint)
+    const dvrStart = baseStationTime - 180 * 60000;
+    console.log("dvrStart is :", dvrStart)
 
-    let startMin = baseStationTime.setMinutes(-start),
-        endMin = baseStationTime.setMinutes(-end);
-    console.log("startMin: ", startMin, "\n", "endMin: ", endMin)
+    start = start > dvrConstraint ? dvrConstraint :
+        start <= 0 ? dvrConstraint : start
 
-    return function getControlStream(url) {
-        let customUrl = url + "+" + startMin + "&end=" + endMin;
-        return customUrl
+    end = end >= dvrConstraint ? 60000 :
+        end <= 0 ? end : end
+
+    console.log("After check start is : ", start / 60000, "end is: ", end / 60000)
+
+    let customUrl = baseUrl + "?start=" + (baseStationTime - start) / 1000 + "&end=" + (baseStationTime - end) / 1000;
+    console.log("customUrl: ", customUrl)
+    return customUrl
+}
+
+
+function DST(tz) {
+    const now = new Date(),
+        utcDate = new Date(
+            now.getUTCFullYear(),
+            now.getUTCMonth(),
+            now.getUTCDate(),
+            now.getUTCHours(),
+            now.getUTCMinutes(),
+            now.getUTCSeconds()
+        ),
+        utcTime = utcDate.getTime()
+    // console.log("now is : ", now)
+    // console.log("utcDate is : ", utcDate)
+
+    console.log("now in UNIX is : ", now.getTime())
+    console.log("utcDate in UNIX is : ", utcTime)
+
+
+    tz = tz.toUpperCase()
+    let currentTime = 0;
+    if (tz == "AEDT") {
+        currentTime = utcTime + 11 * 3600000
+        console.log("AEDT")
+    } else if (tz == "ACDT") {
+        currentTime = utcTime + 10.5 * 3600000
+        console.log("ACDT")
+    } else if (tz == "ACST") {
+        currentTime = utcTime + 9.5 * 3600000
+        console.log("ACST")
+    } else if (tz == "AWST") {
+        currentTime = utcTime + 8 * 3600000
+        console.log("AWST")
+    } else if (tz == "AEST") {
+        currentTime = utcTime + 10 * 3600000
+        console.log("AEST")
     }
+    // tz = tz == "AEDT" ? currentTime = utcTime + 11 * 3600000 :
+    //     tz == "ACDT" ? currentTime = utcTime + 10.5 * 3600000 :
+    //     tz == "ACST" ? currentTime = utcTime + 9.5 * 3600000 :
+    //     tz == "AWST" ? currentTime = utcTime + 8 * 3600000 :
+    //     tz == "AEST" ? currentTime = utcTime + 10 * 3600000 : 8 * 3600000;
 
+    console.log("current time is : ", currentTime)
+    return currentTime;
 }
+
 
 async function runStream(url) {
     console.log("url is :", url)
     const stream = await fetch(url);
-    console.log("customeStream: ", stream)
-    //return stream
+    console.log("customStream: ", stream)
+    return await stream;
 }
 
-runStream(getURL("qld"));
-//runStream(controlStream(150, 5))
+DST('AWST');
 
-//let a = timeStream(150, 5)
+// fetch(url)
+//     .then(res => {
+//         return new Promise((resolve, reject) => {
+//             const dest = fs.createWriteStream('./stream.mp3');
+//             res.body.pipe(dest);
+//             res.body.on('error', err => {
+//                 reject(err);
+//             });
+//             dest.on('finish', () => {
+//                 resolve();
+//             });
+//             dest.on('error', err => {
+//                 reject(err)
+//             })
+//         })
+//     })
+
 //a(getURL("qld"))
-//runStream(a(getURL("nsw")))
+//runStream(a(getURL("wa")))
+
+//getURL('nsw')
+//controlStream(116, 111)
+//Run controlled stream with start and end time defined
+//console.log(runStream(controlStream(150, 5)));
+//Run stream for specific states
+// console.log(runStream(
+//     getURL({
+//         state: "wa"
+//     })
+// ));
+//console.log(runStream('https://api.github.com/'))
+//console.log(RS.getRequest("https:/ / www.abc.net.au / "));
