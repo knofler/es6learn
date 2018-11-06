@@ -1,11 +1,8 @@
 const fetch = require('node-fetch')
 
-function main({
-    tz,
-    start = 0,
-    end = 0,
+function KIDS(
     baseUrl = 'https://abcradiolivehls-lh.akamaihd.net/i/abcextra_1@327281/master.m3u8'
-}) {
+) {
     const now = new Date(),
         utcDate = new Date(
             now.getUTCFullYear(),
@@ -18,32 +15,16 @@ function main({
         utcTime = utcDate.getTime(),
         baseStationStartTime = now.getTime();
 
+    console.log("Base URL: ", baseUrl);
     console.log("now in UNIX is : ", now.getTime())
     console.log("utcDate in UNIX is : ", utcTime)
 
-    let userTZ = tz.toUpperCase()
     let TZStartTime = 0;
-    start = start * 60000
-    end = end * 60000
 
     return {
-        timeZone: function () {
-            // if (tz == "AEDT") {
-            //     TZStartTime = utcTime + 11 * 3600000
-            //     console.log("AEDT")
-            // } else if (tz == "ACDT") {
-            //     TZStartTime = utcTime + 10.5 * 3600000
-            //     console.log("ACDT")
-            // } else if (tz == "ACST") {
-            //     TZStartTime = utcTime + 9.5 * 3600000
-            //     console.log("ACST")
-            // } else if (tz == "AWST") {
-            //     TZStartTime = utcTime + 8 * 3600000
-            //     console.log("AWST")
-            // } else if (tz == "AEST") {
-            //     TZStartTime = utcTime + 10 * 3600000
-            //     console.log("AEST")
-            // }
+        baseUrl: baseUrl,
+        timeZone: function (tz) {
+            let userTZ = tz.toUpperCase();
             userTZ == "AEDT" ? TZStartTime = utcTime + 11 * 3600000 :
                 userTZ == "ACDT" ? TZStartTime = utcTime + 10.5 * 3600000 :
                 userTZ == "ACST" ? TZStartTime = utcTime + 9.5 * 3600000 :
@@ -53,7 +34,10 @@ function main({
             console.log("Time Zone current time is : ", TZStartTime, "and TZ is: ", tz)
 
             return {
-                controlStream: function () {
+                TZStartTime: TZStartTime,
+                controlStream: function (start = 0, end = 0) {
+                    start = start * 60000;
+                    end = end * 60000;
                     console.log("User Defined start: ", start, "User Defined end : ", end)
                     let dvrConstraint = 180 * 60000
                     console.log("dvrConstraint is :", dvrConstraint)
@@ -114,12 +98,7 @@ function main({
 
 }
 
-console.log(main({
-        tz: 'ACDT',
-        start: 0,
-        end: 0
-    })
-    .timeZone()
-    .controlStream()
+KIDS().timeZone("ACDT")
+    .controlStream(120, 105)
     .getURL()
-    .stream());
+    .stream();
