@@ -32,8 +32,8 @@ const HealthStatus = {
 function getStatus(data) {
     status = data.icestats.source == undefined ? HealthStatus.noStream :
         data.icestats.source.server_type == "audio/mp3" ? HealthStatus.mp3 :
-        data.icestats.source.server_type == "audio/aac" ? HealthStatus.aac :
-        HealthStatus.all;
+        data.icestats.source.server_type == "audio/aacp" ? HealthStatus.aac :
+        data.icestats.source.length >= 2 ? HealthStatus.all : {};
 }
 
 //async function to fetch the stream
@@ -41,9 +41,10 @@ async function getStream(url) {
     var stream = await fetch(url)
         .then((resp) => resp.json())
         .then(getStatus)
+    //console.log(stream)
 }
 
-getStream(prodUrl)
+getStream(dnOpsUrl)
 
 setTimeout(function () {
     console.log("Stream status :", status)
