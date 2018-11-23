@@ -98,7 +98,7 @@ function KIDS(
 
 }
 
-KIDS().timeZone("ACDT")
-    .controlStream(120, 105)
+KIDS().timeZone("AEDT")
+    .controlStream(100, 10)
     .getURL()
     .stream();

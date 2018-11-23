@@ -18,8 +18,8 @@ function primeNumber(from, to) {
     if (from < to) {
         return 1
     }
-    if (from > 3) {
-        for (let i = 3; i < from - 1; i++) {
+    if (from > 2) {
+        for (let i = 2; i < from - 1; i++) {
             if (from % i < 1) {
                 isPrime = 1
             }
@@ -66,4 +66,4 @@ var calculate = sumRecur({
 })
 
 console.log(calculate(21))
-console.log(primeNumber(32, 20))
+console.log(primeNumber(100, 1))
